@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>тупой калькулятор</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font-family:'Nunito',system-ui,sans-serif;color:#fff;background:linear-gradient(160deg,#150a3a 0%,#2a1060 60%,#3d1680 100%) fixed;transition:background .6s,color .6s;overflow-x:hidden}
+body.light{background:#f7f4ff;color:#2a1060}
+#sky{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;transition:opacity .6s}
+body.light #sky{opacity:0}
+.comet{position:absolute;top:var(--t);left:var(--l);width:var(--w,140px);height:2px;border-radius:2px;background:linear-gradient(90deg,#fff,rgba(190,160,255,.5) 30%,transparent);transform:rotate(-35deg);opacity:0;animation:fly var(--d) linear var(--s) infinite}
+.comet::before{content:"";position:absolute;left:-2px;top:-2px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px rgba(200,170,255,.8)}
+@keyframes fly{0%{transform:translate(0,0) rotate(-35deg);opacity:0}8%{opacity:.9}65%{opacity:.9}100%{transform:translate(-55vw,38vw) rotate(-35deg);opacity:0}}
+#app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:16px 18px 60px;min-height:100vh}
+.screen{animation:rise .5s both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+button,input,textarea{font:inherit;color:inherit}
+.btn{border:0;border-radius:999px;padding:14px 26px;font-weight:800;background:#fff;color:#2a1060;cursor:pointer;transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.btn.block{display:block;width:100%}
+.btn.dark{background:#2a1060;color:#fff}
+.btn.sm{padding:9px 16px;font-size:.9rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row.center{justify-content:center}
+.topb{display:flex;align-items:center;gap:12px;margin-bottom:18px;min-height:40px}
+.brand{font-size:.85rem;opacity:.6;letter-spacing:.04em}
+.link{background:none;border:0;opacity:.6;text-decoration:underline;cursor:pointer;font-size:.85rem;padding:6px}
+/* intro */
+.intro{display:flex;flex-direction:column;align-items:center;padding-top:7vh;text-align:center}
+.orb{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#5a2fb0,#2a1060 70%);box-shadow:0 0 0 2px rgba(255,255,255,.22),0 0 44px rgba(160,120,255,.55);display:grid;place-items:center;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.orb svg{width:54px;height:54px;fill:#fff;animation:popstar 1s cubic-bezier(.2,1.4,.4,1) both,twinkle 3s 1s ease-in-out infinite}
+.intro.logo .orb{transform:translateY(24vh) scale(1.55)}
+@keyframes popstar{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+@keyframes twinkle{50%{transform:scale(1.12);filter:drop-shadow(0 0 8px #fff)}}
+#bub{display:flex;flex-direction:column;align-items:center;width:100%}
+.bubble{position:relative;margin-top:28px;background:#fff;color:#1a0b3d;border-radius:28px;padding:18px 24px;max-width:340px;font-weight:800;font-size:1.15rem;line-height:1.35;box-shadow:5px 6px 0 rgba(201,184,255,.35);animation:pop .45s cubic-bezier(.2,1.5,.4,1) both}
+.bubble::before{content:"";position:absolute;top:-14px;left:50%;margin-left:-14px;border:14px solid transparent;border-top:0;border-bottom-color:#fff}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.late{animation:fadein .5s 1.4s both;margin-top:24px}
+.fade{animation:fadein .5s .3s both;margin-top:22px}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.round{width:86px;height:86px;border-radius:50%;border:0;background:#fff;color:#2a1060;font-size:2rem;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .15s}
+.round:active{transform:scale(.93)}
+.name-in{width:100%;max-width:300px;padding:14px 18px;border-radius:16px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);font-size:1.2rem;text-align:center;outline:0}
+.name-in::placeholder{color:rgba(255,255,255,.45)}
+/* greet */
+.greet{min-height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.greet h1{font-family:'Marck Script',cursive;font-weight:400;margin:0;font-size:2.6rem;line-height:1.15;animation:rise .9s both}
+.greet h1 span{display:block;font-size:4.6rem;color:#5b2fc9;margin:.05em 0}
+.greet .btn{margin-top:38px;animation:fadein .6s 1s both}
+/* calc */
+h2.q{font-size:1.7rem;line-height:1.2;margin:10px 0 18px;font-weight:800}
+.field{width:100%;padding:14px 16px;border-radius:18px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);outline:0;font-size:1.25rem;line-height:1.4;resize:none}
+.field:focus{border-color:#c9b8ff}
+.field::placeholder{color:rgba(255,255,255,.35);font-size:1rem}
+.chips{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.chip{min-width:44px;padding:9px 14px;border-radius:99px;border:1.5px solid rgba(255,255,255,.28);background:transparent;cursor:pointer;font-size:1rem;font-weight:700}
+.chip.on{background:#fff;color:#2a1060}
+.chip.mode{font-size:.85rem}
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:120px}
+.photo{display:flex;align-items:center;gap:8px;font-size:.85rem;opacity:.8;margin-top:10px}
+.photo button{background:none;border:0;opacity:.6;cursor:pointer;font-size:1.1rem}
+#res{margin-top:22px}
+.card{padding:18px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);animation:rise .4s both}
+.ans{font-size:2.2rem;font-weight:800;word-break:break-word;margin:2px 0 4px}
+.lab{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;opacity:.55}
+.steps{white-space:pre-wrap;line-height:1.6;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12);word-break:break-word}
+.note{font-size:.85rem;opacity:.6;margin-top:8px}
+.think{display:flex;align-items:center;gap:10px;opacity:.8}
+.dots i{display:inline-block;width:7px;height:7px;margin-right:4px;border-radius:50%;background:#c9b8ff;animation:bl 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,80%,100%{opacity:.2}40%{opacity:1}}
+h3{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin:34px 0 10px}
+.hist{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.05);margin-bottom:8px;cursor:pointer}
+.hist .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist b{color:#d9ccff;white-space:nowrap;max-width:40%;overflow:hidden;text-overflow:ellipsis}
+.hist .x{background:none;border:0;opacity:.45;cursor:pointer;font-size:1.1rem;padding:4px 8px}
+.empty{opacity:.45;font-size:.9rem}
+.toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%);background:#fff;color:#2a1060;padding:10px 18px;border-radius:99px;font-weight:700;z-index:20;animation:rise .3s both;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90%;text-align:center}
+</style>
+</head>
+<body>
+<div id="sky">
+  <i class="comet" style="--t:4%;--l:70%;--d:7s;--s:0s;--w:150px"></i>
+  <i class="comet" style="--t:12%;--l:96%;--d:9s;--s:2.5s;--w:110px"></i>
+  <i class="comet" style="--t:38%;--l:105%;--d:8s;--s:5s;--w:170px"></i>
+  <i class="comet" style="--t:-3%;--l:40%;--d:10s;--s:1s;--w:90px"></i>
+  <i class="comet" style="--t:55%;--l:110%;--d:11s;--s:7s;--w:130px"></i>
+  <i class="comet" style="--t:22%;--l:85%;--d:12s;--s:3.5s;--w:70px"></i>
+</div>
+<main id="app"></main>
+
+<script>
+const STAR='<svg viewBox="0 0 100 100"><path d="M50 0 L61 40 L100 50 L61 60 L50 100 L39 60 L0 50 L39 40 Z"/></svg>';
+const $=s=>document.querySelector(s);
+const app=$('#app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='tk_v1';
+let S={name:'',gender:'',history:[],lastGreet:-1};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d)S=Object.assign(S,d)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let timers=[],ACT={};
+const clearT=()=>{timers.forEach(t=>{clearInterval(t);clearTimeout(t)});timers=[]};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
+function view(html,light){document.body.classList.toggle('light',!!light);app.innerHTML='<div class="screen">'+html+'</div>';window.scrollTo(0,0)}
+function go(fn,...a){clearT();fn(...a)}
+
+/* ---------- INTRO ---------- */
+let tmpGender='';
+function intro(skipLogo){
+  document.body.classList.remove('light');
+  app.innerHTML='<div class="screen intro'+(skipLogo?'':' logo')+'" id="intro"><div class="orb">'+STAR+'</div><div id="bub"></div></div>';
+  if(skipLogo)bubble('gender');
+  else timers.push(setTimeout(()=>{$('#intro').classList.remove('logo');timers.push(setTimeout(()=>bubble('hello'),700))},1600));
+}
+function bubble(step){
+  const b=$('#bub');if(!b)return;
+  if(step==='hello')b.innerHTML='<div class="bubble">Привет! Я тупой калькулятор… зато с ИИ внутри. Решу любой пример или уравнение.</div><button class="btn ghost late" data-act="skip">Скип</button>';
+  if(step==='gender')b.innerHTML='<div class="bubble">Выберите ваш пол</div><div class="row center fade"><button class="round" data-act="gender" data-g="m">М</button><button class="round" data-act="gender" data-g="f">Ж</button></div>';
+  if(step==='name'){
+    b.innerHTML='<div class="bubble">Как вас зовут?</div><div class="fade" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px"><input class="name-in" id="nm" data-enter="setname" maxlength="30" autocomplete="off" placeholder="'+(tmpGender==='f'?'Алёна':'Саня')+'"><button class="btn" data-act="setname">Готово</button></div>';
+    setTimeout(()=>{const n=$('#nm');n&&n.focus()},500);
+  }
+}
+ACT.skip=()=>bubble('gender');
+ACT.gender=t=>{tmpGender=t.dataset.g;bubble('name')};
+ACT.setname=()=>{const v=($('#nm').value||'').trim();if(!v){toast('Напишите, как вас зовут');return}S.name=v;S.gender=tmpGender;save();go(greet)};
+
+/* ---------- GREETING ---------- */
+function greet(){
+  const f=S.gender==='f';
+  const list=[['Привет,','!'],[(f?'Рада':'Рад')+' тебя видеть,','!'],['С возвращением,','!'],['Здравствуй,','!'],['Добро пожаловать,','!'],['Вот и ты,','!'],['Хорошего дня,','!'],['Время считать,','!'],['Сегодня всё посчитаем,','!'],['Отличный день для математики,','!']];
+  let i;do{i=Math.floor(Math.random()*list.length)}while(i===S.lastGreet&&list.length>1);
+  S.lastGreet=i;save();
+  view('<div class="greet"><h1>'+esc(list[i][0])+'<span>'+esc(S.name)+'</span>'+list[i][1]+'</h1><button class="btn dark" data-act="home">Начнём</button></div>',true);
+}
+ACT.home=()=>go(calc);
+ACT.rename=()=>{S.name='';S.gender='';save();go(intro,true)};
+
+/* ---------- AI / local state ---------- */
+let sampleFn=null,imgOK=false,photo=null,detail=true,busy=false,ctl=null;
+(async()=>{
+  try{
+    if(window.claude&&window.claude.use){
+      sampleFn=await window.claude.use('sample');
+      if(sampleFn&&sampleFn.limits){try{const l=await sampleFn.limits();imgOK=!!(l&&l.images)}catch(e){}}
+      const pb=$('#photobtn');if(pb&&imgOK)pb.style.display='';
+      const nt=$('#aistat');if(nt&&!sampleFn)nt.textContent='ИИ здесь недоступен — простые примеры считаю сам.';
+    }
+  }catch(e){}
+})();
+
+/* ---------- LOCAL MATH (no eval) ---------- */
+class Err extends Error{}
+function localEval(src){
+  let s=src.toLowerCase().replace(/\*\*/g,'^').replace(/×/g,'*').replace(/[÷:]/g,'/').replace(/,/g,'.').replace(/π/g,'pi').replace(/√/g,'sqrt').replace(/\s+/g,'');
+  if(!s||/[=<>]/.test(s))return null;
+  let i=0;
+  const fail=()=>{throw new Err('x')};
+  function expr(){let v=term();while(s[i]==='+'||s[i]==='-'){const o=s[i++];const r=term();v=o==='+'?v+r:v-r}return v}
+  function term(){let v=unary();while(s[i]==='*'||s[i]==='/'){const o=s[i++];const r=unary();if(o==='/'){if(r===0)throw new Err('zero');v=v/r}else v=v*r}return v}
+  function unary(){if(s[i]==='-'){i++;return -unary()}if(s[i]==='+'){i++;return unary()}return pow()}
+  function pow(){let b=post();if(s[i]==='^'){i++;const e=unary();return Math.pow(b,e)}return b}
+  function post(){let v=prim();while(s[i]==='%'){i++;v=v/100}return v}
+  function prim(){
+    if(s[i]==='('){i++;const v=expr();if(s[i]!==')')fail();i++;return v}
+    const m=/^(\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+    if(m){i+=m[0].length;return parseFloat(m[0])}
+    const id=/^[a-z]+/.exec(s.slice(i));
+    if(!id)fail();
+    i+=id[0].length;
+    if(id[0]==='pi')return Math.PI;
+    if(id[0]==='e')return Math.E;
+    if(id[0]==='sqrt'||id[0]==='abs'){
+      const a=s[i]==='('?prim():unary();
+      if(id[0]==='abs')return Math.abs(a);
+      if(a<0)throw new Err('sqrt');
+      return Math.sqrt(a);
+    }
+    fail();
+  }
+  try{
+    const v=expr();if(i!==s.length)return null;
+    if(!isFinite(v))return {error:'Это число не посчитать.'};
+    return {value:v};
+  }catch(e){
+    if(e instanceof Err){
+      if(e.message==='zero')return {error:'Делить на ноль нельзя.'};
+      if(e.message==='sqrt')return {error:'Корень из отрицательного числа не вычислить среди обычных чисел.'};
+      return null;
+    }
+    throw e;
+  }
+}
+const fmt=v=>parseFloat(v.toPrecision(12)).toLocaleString('ru-RU',{maximumFractionDigits:10});
+
+/* ---------- CALC SCREEN ---------- */
+function calc(){
+  const h=S.history.map((it,i)=>'<div class="hist" data-act="hopen" data-i="'+i+'"><span class="t">'+esc(it.q||'фото')+'</span><b>'+esc(it.a||'')+'</b><button class="x" data-act="hdel" data-i="'+i+'" aria-label="Удалить">×</button></div>').join('');
+  view('<div class="topb"><span class="brand">тупой калькулятор</span></div>'
+   +'<h2 class="q">Что решаем, '+esc(S.name)+'?</h2>'
+   +'<textarea class="field" id="q" rows="3" data-enter="solve" placeholder="2x + 5 = 17   ·   (12+8)/4   ·   или задача словами" autocomplete="off" spellcheck="false"></textarea>'
+   +'<div class="chips">'+[['x','x'],['^','^'],['√','sqrt('],['(','('],[')',')'],['π','π'],['=','='],['×','×'],['÷','÷']].map(a=>'<button class="chip" data-act="sym" data-v="'+a[1]+'">'+a[0]+'</button>').join('')+'</div>'
+   +'<div class="chips"><button class="chip mode'+(detail?' on':'')+'" data-act="mode" data-d="1">С решением</button><button class="chip mode'+(detail?'':' on')+'" data-act="mode" data-d="0">Только ответ</button><button class="chip mode" id="photobtn" data-act="photo" style="display:'+(imgOK?'':'none')+'">Фото задачи</button></div>'
+   +'<input type="file" id="file" accept="image/*" style="display:none">'
+   +'<div class="photo" id="pinfo"></div>'
+   +'<div class="actions"><button class="btn" id="go" data-act="solve">Решить</button><button class="btn ghost" data-act="clear" style="flex:0 0 auto;min-width:0">Очистить</button></div>'
+   +'<div id="res"></div><div class="note" id="aistat">'+(sampleFn===null&&window.claude?'':'')+'</div>'
+   +'<h3>История</h3>'+(h||'<div class="empty">Пока пусто — решённое появится здесь.</div>')
+   +'<div style="margin-top:30px;text-align:center"><span class="brand">'+esc(S.name)+'</span> · <button class="link" data-act="rename">сменить имя</button></div>');
+  const f=$('#file');
+  if(f)f.addEventListener('change',()=>{photo=f.files&&f.files[0]||null;pinfo()});
+  pinfo();
+}
+function pinfo(){const p=$('#pinfo');if(!p)return;p.innerHTML=photo?'<span>Фото: '+esc(photo.name||'снимок')+'</span><button data-act="rmphoto" aria-label="Убрать">×</button>':''}
+ACT.photo=()=>{const f=$('#file');f&&f.click()};
+ACT.rmphoto=()=>{photo=null;const f=$('#file');if(f)f.value='';pinfo()};
+ACT.sym=t=>{
+  const q=$('#q');q.focus();
+  const a=q.selectionStart??q.value.length,b=q.selectionEnd??a,v=t.dataset.v;
+  q.value=q.value.slice(0,a)+v+q.value.slice(b);
+  q.selectionStart=q.selectionEnd=a+v.length;
+};
+ACT.mode=t=>{detail=t.dataset.d==='1';document.querySelectorAll('.chip.mode[data-d]').forEach(x=>x.classList.toggle('on',x===t))};
+ACT.clear=()=>{$('#q').value='';$('#res').innerHTML='';ACT.rmphoto();$('#q').focus()};
+
+function addHist(q,a,full){
+  S.history=S.history.filter(x=>x.q!==q||!q);
+  S.history.unshift({q,a,full:full||'',ts:Date.now()});
+  S.history=S.history.slice(0,30);save();
+}
+function drawHist(){
+  const box=document.querySelectorAll('.hist');box.forEach(n=>n.remove());
+  const h3=document.querySelector('h3');if(!h3)return;
+  const emp=h3.parentNode.querySelector('.empty');if(emp)emp.remove();
+  const html=S.history.map((it,i)=>'<div class="hist" data-act="hopen" data-i="'+i+'"><span class="t">'+esc(it.q||'фото')+'</span><b>'+esc(it.a||'')+'</b><button class="x" data-act="hdel" data-i="'+i+'" aria-label="Удалить">×</button></div>').join('')||'<div class="empty">Пока пусто — решённое появится здесь.</div>';
+  h3.insertAdjacentHTML('afterend',html);
+}
+function showRes(answer,steps,note,explainBtn){
+  $('#res').innerHTML='<div class="card"><div class="lab">Ответ</div><div class="ans">'+esc(answer||'—')+'</div>'
+    +(steps?'<div class="steps">'+esc(steps)+'</div>':'')
+    +(note?'<div class="note">'+esc(note)+'</div>':'')
+    +(explainBtn?'<div class="actions"><button class="btn sm ghost" data-act="explain">Расписать решение</button></div>':'')+'</div>';
+}
+function thinking(){$('#res').innerHTML='<div class="card think"><span class="dots"><i></i><i></i><i></i></span><span>Думаю…</span></div>'}
+function extract(text){
+  const lines=text.trim().split('\n');let ans=null,idx=-1;
+  for(let i=lines.length-1;i>=0;i--){const m=/^\s*Ответ\s*[:：]\s*(.+)$/i.exec(lines[i]);if(m){ans=m[1].trim();idx=i;break}}
+  const steps=(idx>=0?lines.filter((_,i)=>i!==idx):lines).join('\n').trim();
+  return {ans,steps};
+}
+ACT.solve=async()=>{
+  if(busy)return;
+  const q=$('#q').value.trim();
+  if(!q&&!photo){toast('Напишите пример или уравнение');return}
+  if(!photo){
+    const loc=localEval(q);
+    if(loc){
+      if(loc.error){showRes('—','',loc.error,false);return}
+      const a=fmt(loc.value);showRes(a,'','Посчитано сразу, без ИИ.',!!sampleFn);addHist(q,a,'');drawHist();return;
+    }
+  }
+  await ask(q,detail);
+};
+ACT.explain=()=>{const q=$('#q').value.trim();if(q)ask(q,true)};
+async function ask(q,det){
+  if(!sampleFn){showRes('—','','ИИ здесь недоступен. Простые примеры без неизвестных я считаю сам — попробуйте, например, (12+8)/4.',false);return}
+  busy=true;$('#go').disabled=true;thinking();
+  const rules='Ты — дружелюбный калькулятор-репетитор. Отвечай по-русски, только про математику (примеры, уравнения, системы, задачи, проценты, геометрия и т.п.). Пиши обычным текстом без LaTeX и без markdown-разметки: степени как x^2, корень как sqrt(), дроби как 1/2. '
+    +(det?'Реши по шагам, коротко и понятно. ':'Не пиши шаги — только итог. ')
+    +'Последней строкой напиши «Ответ: …» (для уравнения укажи все корни, для нескольких ответов — через запятую). Если запрос не про математику, вежливо скажи, что умеешь только считать, и в последней строке напиши «Ответ: —».';
+  const prompt=rules+'\n\n'+(photo?'Задача — на приложенном фото.'+(q?' Дополнительно от пользователя: ':''):'Задача: ')+(q||'');
+  try{
+    const opts={modelTier:det?'default':'quick',cache:false,onText:({text})=>{if(text&&text!=='Thinking...'){const e=extract(text);$('#res').innerHTML='<div class="card"><div class="steps" style="border:0;margin:0;padding:0">'+esc(e.steps||text)+'</div></div>'}}};
+    if(photo)opts.images=[photo];
+    const r=await sampleFn(prompt,opts);
+    const e=extract(r.text||'');
+    showRes(e.ans||'—',e.steps||(e.ans?'':r.text),r.truncated?'Ответ получился слишком длинным и обрезан.':'',false);
+    addHist(q,e.ans||'—',e.steps);drawHist();
+    if(photo)ACT.rmphoto();
+  }catch(err){
+    const c=err&&err.code;
+    showRes('—','',c==='not_granted'?'Доступ к ИИ не разрешён.':c==='rate_limited'?'Слишком много запросов — подождите немного.':'Не получилось связаться с ИИ. Попробуйте ещё раз.',false);
+  }finally{busy=false;const g=$('#go');if(g)g.disabled=false}
+}
+ACT.hopen=t=>{
+  const it=S.history[+t.dataset.i];if(!it)return;
+  $('#q').value=it.q||'';showRes(it.a,it.full,'',false);window.scrollTo({top:0,behavior:'smooth'});
+};
+ACT.hdel=(t,e)=>{e.stopPropagation();S.history.splice(+t.dataset.i,1);save();drawHist()};
+
+document.addEventListener('keydown',e=>{
+  const t=e.target;
+  if(e.key==='Enter'&&!e.shiftKey&&t.dataset&&t.dataset.enter){e.preventDefault();ACT[t.dataset.enter]()}
+});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');
+  if(t&&ACT[t.dataset.act])ACT[t.dataset.act](t,e);
+});
+
+if(S.name)greet();else intro(false);
+</script>
+</body>
+</html>
